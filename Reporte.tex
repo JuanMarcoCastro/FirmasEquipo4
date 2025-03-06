@@ -1,0 +1,60 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{hyperref}
+
+\begin{document}
+
+% Portada
+\begin{titlepage}
+    \centering
+    {\Huge \bfseries Título del Proyecto \par}
+    {\Large Title of the Project \par}
+    \vspace{1cm}
+    {\Large Autores: \par}
+    \vspace{0.5cm}
+    {\large Juan Marco Pérez (Matrícula: 123456) \par}
+    {\large María López García (Matrícula: 654321) \par}
+    {\large Pedro Sánchez Ruiz (Matrícula: 112233) \par}
+    \vfill
+    \includegraphics[width=0.4\textwidth]{logo_institucion.png} \par
+    \vspace{0.5cm}
+    {\Large Nombre de la Institución Educativa \par}
+    {\Large Nombre del Socio Formador \par}
+    \vfill
+    {\Large Profesores Responsables del Reto: \par}
+    {\large Dr. Nombre del Profesor 1 \par}
+    {\large Mtro. Nombre del Profesor 2 \par}
+    \vfill
+    {\large \today \par}
+\end{titlepage}
+
+% Índice
+\tableofcontents
+\newpage
+
+% Resumen
+\chapter*{Resumen}
+\addcontentsline{toc}{chapter}{Resumen}
+Aquí va el resumen en español.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+Here goes the abstract in English.
+
+% Introducción
+\chapter{Introducción}
+Aquí va la introducción sobre el tema y nicho del objeto de estudio.
+
+% Marco Referencial
+\chapter{Marco Referencial}
+\section{Marco Teórico}
+Aquí va el marco teórico.
+
+\section{Marco Contextual}
+Aquí va el marco contextual.
+
+\section{Estado del Arte}
+Aquí va el estado del arte.
+
+\end{document}

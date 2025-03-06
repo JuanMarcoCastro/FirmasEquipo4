@@ -2,7 +2,7 @@
 
 Integrantes:
 - Juan Marco Castro Trinidad
-- Fedra
+- Fedra Fernanda Mandujano López
 - Miranda
 - Eliani
 - Alfredo

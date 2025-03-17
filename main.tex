@@ -34,7 +34,6 @@
 \usepackage{tabularx}
 %\usepackage{fontspec}
 
-
 \setlength{\columnseprule}{1pt}
 \setlength\topmargin{-1.5in}
 \setlength\headheight{0in}
@@ -107,23 +106,15 @@ Casa Monarca, una organización sin fines de lucro en Monterrey, brinda apoyo hu
 
 \subsection{Abstract}%(en inglés de 100 a 150 palabras).
 Casa Monarca, a non-profit organization in Monterrey, provides humanitarian support to migrants, facilitating their social, legal and cultural integration in Mexico. Traditional paper signatures can be easily forged, not to mention computer printing tricks. To improve the security and efficiency of its administrative processes, the organization seeks to implement a digital signature system that guarantees the authenticity and integrity of documents. This report explores the state of the art of digital signatures, cryptographic standards, existing solutions and legal and ethical considerations in Mexico. The objective is to propose a solution adapted to Casa Monarca's needs, ensuring the protection of sensitive data and compliance with legal regulations.
-
 \newpage
+
 \subsection{Introducción} %tema y nicho del objeto de estudio (máximo 250 palabras).
-Casa monarca es una organización sin fines de lucro, ubicada en la ciudad de Monterrey, Nuevo León. Donde cuentan con la filosofía de brindar ayuda humanitaria a los migrantes que transitan o buscan instalarse en la ciudad, proporcionándoles alojamiento, con la finalidad de que logren integrarse legalmente, social y culturalmente a México. Abogando por sus derechos humanos por una mejor calidad de vida, tomando en cuenta sus necesidades como la alimentación, ropa, calzado, asistencia médica, orientación y acompañamiento jurídico (\cite{CasaMonarca})
+Casa monarca es una organización sin fines de lucro donde cuentan con la filosofía de brindar ayuda humanitaria a los migrantes que transitan o buscan instalarse en la ciudad, proporcionándoles alojamiento, con la finalidad de que logren integrarse legalmente, social y culturalmente a México. Abogan por sus derechos humanos por una mejor calidad de vida, tomando en cuenta sus necesidades como la alimentación, ropa, calzado, asistencia médica, orientación y acompañamiento jurídico. (\cite{CasaMonarca})
 
-Con esto, esta organización tiene una necesidad en mejorar sus proceso de firmas electrónicas de documento, tanto para facilitarlo como para mejorar la seguridad, ya que se trata de documentos sensibles de las personas migrantes y de documentación interna dentro de la organización.
-Una firma digital como dice el nombre, reemplaza a una forma física de identificar a una persona a través de métodos criptográficos que garantizan seguridad en los documentos, es importante que estos documentos tengas esta seguridad para no ser corrompidos por un atacante queriendo modificar estos documentos. El propósito de este proyecto es generar métodos de seguridad por medio de criptografía para documentos internos, asegurando la protección de datos sensibles, a continuación se muestra una investigación respecto a la necesidad des estos métodos de seguridad y la importancia de este proyecto para una organización.
+Con esto, esta organización tiene una necesidad en mejorar sus procesos de firmas electrónicas de documentos para mejorar su seguridad, ya que se trata de documentos sensibles de las personas migrantes y de documentación interna dentro de la organización. Una firma digital como dice el nombre, reemplaza a una forma física de identificar a una persona a través de métodos criptográficos que garantizan seguridad en los documentos. Es importante que estos documentos tengan esta seguridad para no ser corrompidos por un atacante queriendo modificar estos documentos. El propósito de este proyecto es generar métodos de seguridad por medio de criptografía para documentos internos, asegurando la protección de datos sensibles. A continuación se muestra una investigación respecto a la necesidad de estos métodos de seguridad y la importancia de este proyecto para una organización. (\cite{CasaMonarca})
 
-
-
+Con este proyecto el socio formador obtendrá grandes beneficios acorde a la seguridad y el buen manejo de sus datos al aplicar las firmas digitales en ellos, puesto que, contará con una mejor protección e integridad de estos, añadiendo una reducción a posibles fraudes cibernéticos. 
 \newpage
-
-
-
-
-
-
 
 \subsection{Marco Referencial} %incluye el marco teórico, contextual y estado del arte
 Las transacciones electrónicas son ahora algo indispensables, por lo que es necesario usar un mecanismo cuyo objetivo sea asegurarse de que la integridad de los datos no esté alterada, autenticar el origen, y evitar que el usuario niegue su uso, la firma digital, que es el fruto de una transformación criptográfica de datos (\cite{NIST:2023}). Dicho de mejor manera, un algoritmo usado para vincular criptográficamente un documento digital a la identidad de algo, sea máquina, persona o compañía.  (\cite{Entrust}).  
@@ -133,11 +124,10 @@ Esta herramienta es importante porque, al contrario que las firmas tradicionales
 Algo importante a tener en cuenta es que casi todos los países y regiones tienen normas y reglamentos diferentes en cuanto a la creación de firmas electrónicas para que sean reconocidas legalmente, por lo que es necesario asesorarse jurídicamente para asegurarse de que se están cumpliendo con las normas requeridas en la región (\cite{Entrust}).
 
 En Perú, Cachay (2024) realizó una investigación con la intención de analizar la situación actual de la manera en que se están procesando los documentos importantes que necesitan firmas digitales. Se consideró necesaria la creación y el uso de este tipo de firmas para mejorar el manejo administrativo de documentos en las universidades públicas de Perú. A través de este estudio se identificaron varios beneficios relacionados con el uso de firmas digitales, pero esto no ha aportado al avance y la agilización de los procesos administrativos de la universidad. Por lo tanto, la implementación y el uso de estas firmas no han aumentado.(\cite{Cachay:2024}) Las firmas digitales también se han usado en otros tipos de procesos como las compras electrónicas, el voto electrónico, entre otros. Para que se considere que las firmas digitales y los procesos en los que se utilizan son exitosos es cuando son seguros y tienen factores que aseguran la autenticidad y la integridad de las firmas. Estos aspectos son importantes, ya que son los que verifican la identidad de la persona que firma.(\cite{Roy:2012})
+
 \subsubsection{Marco Legal}
-Como se ha mencionado en la sección anterior, el socio formador está buscando comenzar a implementar firmas digitales. Este proceso tiene el principal objetivo de eficientar el proceso de firmado y que este mismo sea más seguro. El aspecto legal que se relaciona con estas firmas varía dependiendo del país y la región. En el caso de México, se comenzaron a aceptar las firmas digitales a partir del 2003 cuando se actualizó el Código de Comercio Mexicano. Este mismo estableció que tanto individuos como compañías pueden usar firmas tanto físicas como digitales para firmar cualquier tipo de contrato o documento comercial. México ha establecido que para que una firma digital sea reconocida legalmente debe ser única para el firmante, se debería de poder identificar independientemente y cambios deben de ser fácilmente detectables. (\cite{SSL:2024})
-
+Como se ha mencionado en la sección anterior, el socio formador está buscando comenzar a implementar firmas digitales. Este proceso tiene el principal objetivo de eficientar el proceso de firmado y que este mismo sea más seguro. El aspecto legal que se relaciona con estas firmas varía dependiendo del país y la región. En el caso de México, se comenzaron a aceptar las firmas digitales a partir del 2003, cuando se actualizó el Código de Comercio Mexicano. Este mismo estableció que tanto individuos como compañías pueden usar firmas tanto físicas como digitales para firmar cualquier tipo de contrato o documento comercial. México ha establecido que para que una firma digital sea reconocida legalmente debe ser única para el firmante, se debería de poder identificar independientemente y cambios deben de ser fácilmente detectables. (\cite{SSL:2024})
 \newpage
+
 \printbibliography
-
 \end{document}
-

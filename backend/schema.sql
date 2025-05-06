@@ -71,7 +71,11 @@ CREATE TABLE notifications (
 
 -- Insertar usuario administrador por defecto
 INSERT INTO users (name, email, password_hash, role)
-VALUES ('Admin', 'admin@example.com', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Admin');
+VALUES 
+('Admin', 'admin@example.com', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Admin'),
+('Juan', 'juan@example.com', '5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8', 'Employer'), -- Contraseña: password
+('Maria', 'maria@example.com', 'e99a18c428cb38d5f260853678922e03abd8334f', 'Management'), -- Contraseña: abc123
+('Carlos', 'carlos@example.com', 'd8578edf8458ce06fbc5bb76a58c5ca4', 'Sub_Admin'); -- Contraseña: qwerty
 -- Contraseña: 123
 
 -- Crear carpeta raíz por defecto

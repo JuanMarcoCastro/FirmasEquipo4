@@ -11,30 +11,30 @@
       "static/chunks/main-app.js",
       "static/chunks/app/page.js"
     ],
-    "/login/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/login/loading.js"
-    ],
     "/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/login/page.js"
     ],
-    "/dashboard/page": [
+    "/dashboard/[role]/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/page.js"
+      "static/chunks/app/dashboard/[role]/layout.js"
     ],
-    "/dashboard/users/loading": [
+    "/dashboard/[role]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/users/loading.js"
+      "static/chunks/app/dashboard/[role]/page.js"
     ],
-    "/dashboard/users/page": [
+    "/dashboard/[role]/admin/usuarios/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/dashboard/users/page.js"
+      "static/chunks/app/dashboard/[role]/admin/usuarios/loading.js"
+    ],
+    "/dashboard/[role]/admin/usuarios/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/dashboard/[role]/admin/usuarios/page.js"
     ]
   }
 }

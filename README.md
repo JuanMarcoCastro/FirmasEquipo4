@@ -5,7 +5,7 @@ Integrantes (601):
 - Fedra Fernanda Mandujano López
 - Miranda
 - Eliani
-- Alfredo
+- Alfredo D
 
 ---
 

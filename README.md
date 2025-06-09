@@ -3,7 +3,7 @@
 Integrantes (601):
 - Juan Marco Castro Trinidad
 - Fedra Fernanda Mandujano López
-- Miranda
+- Miranda Isabel Rada Chau
 - Eliani
 - Alfredo D
 

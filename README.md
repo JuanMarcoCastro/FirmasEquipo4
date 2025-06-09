@@ -1,10 +1,10 @@
 # FirmasEquipo4
 
-Integrantes (601):
+Integrantes del equipo (601):
 - Juan Marco Castro Trinidad
 - Fedra Fernanda Mandujano López
 - Miranda Isabel Rada Chau
-- Eliani
+- Eliani González Laguna
 - Alfredo D
 
 ---

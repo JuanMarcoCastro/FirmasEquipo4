@@ -1,3 +1,31 @@
+# FirmasEquipo4
+
+Integrantes del equipo (601):
+- Juan Marco Castro Trinidad
+- Fedra Fernanda Mandujano López
+- Miranda Isabel Rada Chau
+- Eliani González Laguna
+- Alfredo D
+
+---
+
+# Reto
+Implementar protocolos basados en criptografía de clave pública de manera eficiente e ideal con contramedidas con el fin de desarrollar un sistema funcional de firma digital que garantice la autenticidad e integridad de los documentos y que esté adaptado a las necesidades de una organización social que trabaja con migrantes.
+
+---
+
+##  Equipo de desarrollo
+
+| Nombre             | Rol                         |
+|--------------------|-----------------------------|
+| Fedra              | Frontend                    |
+| Miranda            | Frontend                    |
+| Eliani             | Firma Digital en Python     |
+| Marco              | Backend + conexión BD       |
+| Alfredo            | Backend + conexión BD       |
+
+---
+
 # Casa Monarca - Sistema de Gestión Documental
 
 Sistema completo de gestión documental con firma digital para Casa Monarca - Ayuda Humanitaria al Migrante A.B.P.

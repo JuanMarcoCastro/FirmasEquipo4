@@ -1,9 +1,10 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image" // Importar Image de next/image
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FileText, Shield, Users, CheckCircle } from "lucide-react"
+import { Shield, Users, CheckCircle } from "lucide-react" // Eliminar FileText de las importaciones
 
 export default function LandingPage() {
   return (
@@ -13,7 +14,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <FileText className="h-8 w-8 text-blue-600 mr-3" />
+              <Image src="/Casa_monarca.png" alt="Casa Monarca Logo" width={80} height={80} className="h-22 w-22 mr-3 text-primary" /> {/* Ajustar h- y w- para que coincidan con height y width */}
               <h1 className="text-2xl font-bold text-gray-900">Casa Monarca ayuda humanitaria al migrante A. B. P.</h1>
             </div>
             <div className="flex space-x-4">

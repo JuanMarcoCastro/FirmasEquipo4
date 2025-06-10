@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image" // Importar Image de next/image
 import { useRouter } from "next/navigation"
-import { FileSignature, Bell, Settings, LogOut, User } from "lucide-react"
+import { Bell, Settings, LogOut, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -73,7 +74,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
       <div className="container flex h-16 items-center justify-between py-4">
         <div className="flex items-center gap-2">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <FileSignature className="h-6 w-6 text-primary" />
+            <Image src="/Casa_monarca.png" alt="Casa Monarca Logo" width={50} height={50} className="h-18 w-18 text-primary" />
             <span className="text-xl font-bold">Casa Monarca</span>
           </Link>
         </div>

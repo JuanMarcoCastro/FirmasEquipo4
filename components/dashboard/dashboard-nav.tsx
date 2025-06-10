@@ -101,6 +101,12 @@ export default function DashboardNav({ role, department }: DashboardNavProps) {
       icon: Settings,
       roles: ["system_admin"],
     },
+    {
+      title: "Gestión de Roles",
+      href: "/dashboard/role-management",
+      icon: Shield,
+      roles: ["system_admin"],
+    },
   ]
 
   const filteredNavItems = navItems.filter((item) => item.roles.includes(role))

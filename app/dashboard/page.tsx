@@ -58,11 +58,19 @@ export default async function DashboardPage() {
     }
 
     try {
-      const { count: signedCount } = await supabase
+      // Contar firmas de la tabla signatures
+      const { count: signaturesCount } = await supabase
         .from("signatures")
         .select("id", { count: "exact", head: true })
         .eq("user_id", session.user.id)
-      signedDocuments = signedCount || 0
+
+      // Contar firmas de la tabla document_signatures (PyHanko)
+      const { count: documentSignaturesCount } = await supabase
+        .from("document_signatures")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", session.user.id)
+
+      signedDocuments = (signaturesCount || 0) + (documentSignaturesCount || 0)
     } catch (error) {
       console.error("Error fetching signed documents:", error)
     }

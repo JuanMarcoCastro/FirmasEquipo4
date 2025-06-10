@@ -121,16 +121,20 @@ export default async function UsersPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Link href={`/dashboard/users/${user.id}`}>
-                    <Button variant="outline" size="sm">
-                      Ver Detalles
-                    </Button>
-                  </Link>
-                  <Link href={`/dashboard/users/${user.id}/edit`}>
-                    <Button variant="outline" size="sm">
-                      Editar
-                    </Button>
-                  </Link>
+                  {currentUser?.role === "system_admin" && (
+                    <>
+                      <Link href={`/dashboard/users/${user.id}`}>
+                        <Button variant="outline" size="sm">
+                          Ver Detalles
+                        </Button>
+                      </Link>
+                      <Link href={`/dashboard/users/${user.id}/edit`}>
+                        <Button variant="outline" size="sm">
+                          Editar
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

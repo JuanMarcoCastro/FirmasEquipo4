@@ -25,6 +25,15 @@ interface DashboardNavProps {
 export default function DashboardNav({ role, department }: DashboardNavProps) {
   const pathname = usePathname()
 
+  const handleNavigation = (href: string, title: string) => {
+    console.log(`Navigating to: ${href} (${title})`)
+    try {
+      // El Link manejará la navegación
+    } catch (error) {
+      console.error(`Navigation error to ${href}:`, error)
+    }
+  }
+
   const navItems = [
     {
       title: "Dashboard",
@@ -49,6 +58,12 @@ export default function DashboardNav({ role, department }: DashboardNavProps) {
       href: "/dashboard/signed",
       icon: FileCheck,
       roles: ["system_admin", "area_coordinator", "operational_staff", "external_personnel"],
+    },
+    {
+      title: "Todos los Documentos",
+      href: "/dashboard/all-documents",
+      icon: FileText,
+      roles: ["system_admin"],
     },
     {
       title: "Gestión de Usuarios",
@@ -98,10 +113,16 @@ export default function DashboardNav({ role, department }: DashboardNavProps) {
           {department && <p className="text-xs text-muted-foreground">{department}</p>}
         </div>
         {filteredNavItems.map((item) => (
-          <Link key={item.href} href={item.href}>
-            <Button variant="ghost" className={cn("w-full justify-start", pathname === item.href && "bg-muted")}>
-              <item.icon className="mr-2 h-5 w-5" />
-              {item.title}
+          <Link key={item.href} href={item.href} className="block">
+            <Button
+              variant="ghost"
+              className={cn("w-full justify-start text-left", pathname === item.href && "bg-muted")}
+              asChild={false}
+            >
+              <div className="flex items-center">
+                <item.icon className="mr-2 h-5 w-5" />
+                {item.title}
+              </div>
             </Button>
           </Link>
         ))}

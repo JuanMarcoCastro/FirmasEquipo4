@@ -1,37 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type FormEvent, type ChangeEvent } from "react"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
 import { Upload, Loader2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useSupabase } from "@/lib/supabase-provider"
 import { departments } from "@/lib/rbac"
-
-const formSchema = z.object({
-  title: z.string().min(3, "El título debe tener al menos 3 caracteres"),
-  description: z.string().optional(),
-  file: z.instanceof(File).refine((file) => file.type === "application/pdf", {
-    message: "Solo se permiten archivos PDF",
-  }),
-  requiredSignatures: z.number().min(1, "Debe requerir al menos 1 firma").max(10, "Máximo 10 firmas"),
-  targetDepartment: z.string().optional(),
-})
 
 interface DocumentUploadButtonProps {
   userId: string
@@ -45,46 +25,95 @@ export default function DocumentUploadButton({ userId, className }: DocumentUplo
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: "",
-      description: "",
-      requiredSignatures: 1,
-      targetDepartment: "",
-    },
-  })
+  // Form state
+  const [title, setTitle] = useState("")
+  const [description, setDescription] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [requiredSignatures, setRequiredSignatures] = useState(1)
+  const [targetDepartment, setTargetDepartment] = useState("")
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
+
+    if (!title || title.length < 3) {
+      newErrors.title = "El título debe tener al menos 3 caracteres"
+    }
+
+    if (!file) {
+      newErrors.file = "Debes seleccionar un archivo PDF"
+    } else if (file.type !== "application/pdf") {
+      newErrors.file = "Solo se permiten archivos PDF"
+    }
+
+    if (requiredSignatures < 1) {
+      newErrors.requiredSignatures = "Debe requerir al menos 1 firma"
+    } else if (requiredSignatures > 10) {
+      newErrors.requiredSignatures = "Máximo 10 firmas"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0])
+    }
+  }
+
+  const resetForm = () => {
+    setTitle("")
+    setDescription("")
+    setFile(null)
+    setRequiredSignatures(1)
+    setTargetDepartment("")
+    setErrors({})
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+
+    if (!validateForm()) {
+      return
+    }
+
     setIsLoading(true)
+
     try {
+      if (!file) {
+        throw new Error("No se ha seleccionado ningún archivo")
+      }
+
       // Upload file to Supabase Storage with user folder structure
-      const fileExt = values.file.name.split(".").pop()
+      const fileExt = file.name.split(".").pop()
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `${userId}/${fileName}`
 
-      const { error: uploadError } = await supabase.storage.from("documents").upload(filePath, values.file)
+      const { error: uploadError } = await supabase.storage.from("documents").upload(filePath, file)
 
       if (uploadError) {
-        throw uploadError
+        console.error("Upload error:", uploadError)
+        throw new Error("Error al subir el archivo: " + uploadError.message)
       }
 
       // Create document record
       const { data: document, error: documentError } = await supabase
         .from("documents")
         .insert({
-          title: values.title,
-          description: values.description || null,
+          title,
+          description: description || null,
           file_path: filePath,
           uploaded_by: userId,
-          requires_signatures: values.requiredSignatures,
+          requires_signatures: requiredSignatures,
           status: "pending",
         })
         .select()
         .single()
 
       if (documentError) {
-        throw documentError
+        console.error("Document creation error:", documentError)
+        throw new Error("Error al crear el documento: " + documentError.message)
       }
 
       toast({
@@ -93,9 +122,10 @@ export default function DocumentUploadButton({ userId, className }: DocumentUplo
       })
 
       setIsOpen(false)
-      form.reset()
+      resetForm()
       router.refresh()
     } catch (error: any) {
+      console.error("Upload error:", error)
       toast({
         variant: "destructive",
         title: "Error al subir documento",
@@ -107,120 +137,96 @@ export default function DocumentUploadButton({ userId, className }: DocumentUplo
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className={className}>
-          <Upload className="mr-2 h-4 w-4" />
-          Subir Documento
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Subir Nuevo Documento</DialogTitle>
-          <DialogDescription>Sube un documento PDF para que pueda ser firmado digitalmente.</DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Título del documento</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Ej: Contrato de servicios" disabled={isLoading} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Descripción (opcional)</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Descripción del documento..."
-                      disabled={isLoading}
-                      {...field}
-                      value={field.value || ""}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="file"
-              render={({ field: { onChange, value, ...field } }) => (
-                <FormItem>
-                  <FormLabel>Archivo PDF</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="file"
-                      accept=".pdf"
-                      disabled={isLoading}
-                      onChange={(e) => {
-                        const file = e.target.files?.[0]
-                        if (file) onChange(file)
-                      }}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="requiredSignatures"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Número de firmas requeridas</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      max={10}
-                      disabled={isLoading}
-                      {...field}
-                      onChange={(e) => field.onChange(Number.parseInt(e.target.value))}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="targetDepartment"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Departamento objetivo (opcional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecciona un departamento" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="all">Todos los departamentos</SelectItem>
-                      {departments.map((dept) => (
-                        <SelectItem key={dept} value={dept}>
-                          {dept}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <>
+      <Button onClick={() => setIsOpen(true)} className={className} type="button">
+        <Upload className="mr-2 h-4 w-4" />
+        Subir Documento
+      </Button>
+
+      <Dialog
+        open={isOpen}
+        onOpenChange={(open) => {
+          setIsOpen(open)
+          if (!open) resetForm()
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Subir Nuevo Documento</DialogTitle>
+            <DialogDescription>Sube un documento PDF para que pueda ser firmado digitalmente.</DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Título del documento</Label>
+              <Input
+                id="title"
+                placeholder="Ej: Contrato de servicios"
+                disabled={isLoading}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+              {errors.title && <p className="text-sm text-red-500">{errors.title}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Descripción (opcional)</Label>
+              <Textarea
+                id="description"
+                placeholder="Descripción del documento..."
+                disabled={isLoading}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="file">Archivo PDF</Label>
+              <Input id="file" type="file" accept=".pdf" disabled={isLoading} onChange={handleFileChange} />
+              {errors.file && <p className="text-sm text-red-500">{errors.file}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="requiredSignatures">Número de firmas requeridas</Label>
+              <Input
+                id="requiredSignatures"
+                type="number"
+                min={1}
+                max={10}
+                disabled={isLoading}
+                value={requiredSignatures}
+                onChange={(e) => setRequiredSignatures(Number.parseInt(e.target.value) || 1)}
+              />
+              {errors.requiredSignatures && <p className="text-sm text-red-500">{errors.requiredSignatures}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="targetDepartment">Departamento objetivo (opcional)</Label>
+              <Select value={targetDepartment} onValueChange={setTargetDepartment} disabled={isLoading}>
+                <SelectTrigger id="targetDepartment">
+                  <SelectValue placeholder="Selecciona un departamento" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos los departamentos</SelectItem>
+                  {departments.map((dept) => (
+                    <SelectItem key={dept} value={dept}>
+                      {dept}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="outline" onClick={() => setIsOpen(false)} disabled={isLoading}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  setIsOpen(false)
+                  resetForm()
+                }}
+                disabled={isLoading}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={isLoading}>
@@ -238,8 +244,8 @@ export default function DocumentUploadButton({ userId, className }: DocumentUplo
               </Button>
             </div>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

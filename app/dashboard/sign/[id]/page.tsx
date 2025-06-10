@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase-server"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
-import DocumentSigningForm from "@/components/documents/document-signing-form"
+import EnhancedDigitalSignature from "@/components/documents/enhanced-digital-signature"
 
 interface SignDocumentPageProps {
   params: {
@@ -16,24 +16,11 @@ export default async function SignDocumentPage({ params }: SignDocumentPageProps
   const supabase = createServerClient()
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!session) {
+  if (!user) {
     redirect("/login")
-  }
-
-  // Check if user has permission to sign this document
-  const { data: permission } = await supabase
-    .from("document_permissions")
-    .select("*")
-    .eq("document_id", id)
-    .eq("user_id", session.user.id)
-    .eq("permission_type", "sign")
-    .single()
-
-  if (!permission) {
-    redirect("/dashboard/sign")
   }
 
   // Get document details
@@ -53,17 +40,51 @@ export default async function SignDocumentPage({ params }: SignDocumentPageProps
     redirect("/dashboard/sign")
   }
 
-  // Check if user has already signed this document
-  const { data: existingSignature } = await supabase
-    .from("signatures")
+  // Check if user has permission to sign this document
+  const { data: signPermission } = await supabase
+    .from("document_permissions")
     .select("*")
     .eq("document_id", id)
-    .eq("user_id", session.user.id)
+    .eq("user_id", user.id)
+    .eq("permission_type", "sign")
+    .single()
+
+  // Get current user data
+  const { data: currentUser } = await supabase.from("users").select("*").eq("id", user.id).single()
+
+  if (!currentUser) {
+    redirect("/login")
+  }
+
+  // Check if user can sign this document (same logic as API)
+  const canSign =
+    signPermission ||
+    document.uploaded_by === user.id ||
+    currentUser.role === "system_admin" ||
+    (currentUser.role === "area_coordinator" && currentUser.department === document.users?.department)
+
+  if (!canSign) {
+    redirect("/dashboard/sign")
+  }
+
+  // Check if user has already signed this document
+  const { data: existingSignature } = await supabase
+    .from("document_signatures")
+    .select("*")
+    .eq("document_id", id)
+    .eq("user_id", user.id)
     .single()
 
   if (existingSignature) {
     redirect(`/dashboard/documents/${id}`)
   }
+
+  // Get user's certificates
+  const { data: userCertificates } = await supabase
+    .from("user_certificates")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
 
   // Get document URL from storage
   const { data: fileUrl } = supabase.storage.from("documents").getPublicUrl(document.file_path)
@@ -71,8 +92,8 @@ export default async function SignDocumentPage({ params }: SignDocumentPageProps
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Firmar Documento</h1>
-        <p className="text-muted-foreground">Firma el documento utilizando tu certificado digital</p>
+        <h1 className="text-3xl font-bold tracking-tight">Firmar Documento Digitalmente</h1>
+        <p className="text-muted-foreground">Firma el documento "{document.title}" utilizando tu certificado digital</p>
       </div>
 
       <Card>
@@ -94,7 +115,8 @@ export default async function SignDocumentPage({ params }: SignDocumentPageProps
               </a>
             </Button>
           </div>
-          <DocumentSigningForm documentId={id} userId={session.user.id} documentUrl={fileUrl.publicUrl} />
+
+          <EnhancedDigitalSignature documentId={id} userId={user.id} documentTitle={document.title} />
         </CardContent>
       </Card>
     </div>

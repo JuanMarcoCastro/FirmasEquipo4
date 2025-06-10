@@ -65,6 +65,29 @@ export default function RegisterForm() {
   const onSubmit = async (values: FormData) => {
     setIsLoading(true)
     try {
+      console.log("Starting registration process for:", values.email)
+
+      // First, check if user already exists in auth.users
+      const { data: existingAuthUser } = await supabase.auth.admin.listUsers()
+      const userExists = existingAuthUser.users?.some((user) => user.email === values.email)
+
+      if (userExists) {
+        throw new Error("Ya existe una cuenta con este correo electrónico")
+      }
+
+      // Check if user exists in our users table
+      const { data: existingUser } = await supabase
+        .from("users")
+        .select("email")
+        .eq("email", values.email)
+        .maybeSingle()
+
+      if (existingUser) {
+        throw new Error("Ya existe un usuario registrado con este correo electrónico")
+      }
+
+      console.log("Creating auth user...")
+
       // Register user with Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
@@ -78,26 +101,81 @@ export default function RegisterForm() {
       })
 
       if (authError) {
-        throw authError
+        console.error("Auth error:", authError)
+        throw new Error(`Error de autenticación: ${authError.message}`)
       }
 
       if (!authData.user) {
-        throw new Error("No se pudo crear el usuario")
+        throw new Error("No se pudo crear el usuario en el sistema de autenticación")
       }
 
-      // Insert user data into users table
-      const { error: profileError } = await supabase.from("users").insert({
-        id: authData.user.id,
-        email: values.email,
-        full_name: values.fullName,
-        role: values.role,
-        department: values.department,
-      })
+      console.log("Auth user created successfully:", authData.user.id)
 
-      if (profileError) {
-        console.error("Error creating user profile:", profileError)
-        // Don't throw error here, as the auth user was created successfully
-        // The profile will be created on first login if it doesn't exist
+      // Wait a moment for the auth user to be fully created
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      console.log("Creating user profile...")
+
+      // Insert user data into users table with retry logic
+      let profileCreated = false
+      let attempts = 0
+      const maxAttempts = 3
+
+      while (!profileCreated && attempts < maxAttempts) {
+        try {
+          const { error: profileError } = await supabase.from("users").insert({
+            id: authData.user.id,
+            email: values.email,
+            full_name: values.fullName,
+            role: values.role,
+            department: values.department,
+            totp_enabled: false,
+          })
+
+          if (profileError) {
+            console.error(`Profile creation attempt ${attempts + 1} failed:`, profileError)
+
+            if (profileError.code === "23505") {
+              // Unique constraint violation - user already exists
+              console.log("User profile already exists, checking if it's complete...")
+
+              const { data: existingProfile } = await supabase
+                .from("users")
+                .select("*")
+                .eq("id", authData.user.id)
+                .single()
+
+              if (existingProfile) {
+                console.log("User profile exists and is complete")
+                profileCreated = true
+                break
+              }
+            }
+
+            if (attempts === maxAttempts - 1) {
+              throw new Error(`Error al crear el perfil de usuario: ${profileError.message}`)
+            }
+
+            attempts++
+            await new Promise((resolve) => setTimeout(resolve, 1000))
+          } else {
+            console.log("User profile created successfully")
+            profileCreated = true
+          }
+        } catch (insertError: any) {
+          console.error(`Profile insertion error on attempt ${attempts + 1}:`, insertError)
+
+          if (attempts === maxAttempts - 1) {
+            throw new Error(`Error al guardar el perfil: ${insertError.message}`)
+          }
+
+          attempts++
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+      }
+
+      if (!profileCreated) {
+        throw new Error("No se pudo crear el perfil de usuario después de varios intentos")
       }
 
       toast({
@@ -105,13 +183,35 @@ export default function RegisterForm() {
         description: "Por favor verifica tu correo electrónico para confirmar tu cuenta.",
       })
 
-      router.push("/login")
+      console.log("Registration completed successfully")
+      router.push("/login?message=registration-success")
     } catch (error: any) {
       console.error("Registration error:", error)
+
+      let errorMessage = "Ocurrió un error al crear la cuenta"
+
+      if (error.message) {
+        errorMessage = error.message
+      } else if (error.code) {
+        switch (error.code) {
+          case "user_already_exists":
+            errorMessage = "Ya existe una cuenta con este correo electrónico"
+            break
+          case "weak_password":
+            errorMessage = "La contraseña es muy débil"
+            break
+          case "invalid_email":
+            errorMessage = "El correo electrónico no es válido"
+            break
+          default:
+            errorMessage = `Error del sistema: ${error.code}`
+        }
+      }
+
       toast({
         variant: "destructive",
         title: "Error al registrarse",
-        description: error.message || "Ocurrió un error al crear la cuenta",
+        description: errorMessage,
       })
     } finally {
       setIsLoading(false)

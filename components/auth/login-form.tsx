@@ -34,7 +34,6 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -102,6 +101,10 @@ export default function LoginForm() {
           title: "Perfil creado",
           description: "Se ha creado tu perfil. Un administrador debe asignar tu rol y departamento.",
         })
+
+        // Redirect to dashboard for new users without 2FA
+        window.location.href = "/dashboard"
+        return
       }
 
       // Check if user has TOTP enabled (only if userData exists)
@@ -110,8 +113,8 @@ export default function LoginForm() {
         setShowTOTP(true)
         setIsLoading(false)
       } else {
-        router.push("/dashboard")
-        router.refresh()
+        // Use window.location for more reliable redirect
+        window.location.href = "/dashboard"
       }
     } catch (error: any) {
       console.error("Login error:", error)
@@ -164,8 +167,10 @@ export default function LoginForm() {
         description: "Has iniciado sesión correctamente",
       })
 
-      router.push("/dashboard")
-      router.refresh()
+      // Use window.location for more reliable redirect
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 500)
     } catch (error: any) {
       console.error("TOTP verification error:", error)
       toast({
@@ -173,7 +178,6 @@ export default function LoginForm() {
         title: "Error de verificación",
         description: error.message || "Código TOTP inválido",
       })
-    } finally {
       setIsLoading(false)
     }
   }

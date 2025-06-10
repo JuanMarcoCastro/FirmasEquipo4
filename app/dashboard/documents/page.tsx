@@ -2,24 +2,33 @@ import Link from "next/link"
 import { createServerClient } from "@/lib/supabase-server"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { FileText, FileSignature, Trash2, Eye } from "lucide-react"
+import { FileText, FileSignature, Eye } from "lucide-react"
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
 import DocumentUploadButton from "@/components/documents/document-upload-button"
+import DocumentDeleteButton from "@/components/documents/document-delete-button"
+import { revalidatePath } from "next/cache"
+
+export const revalidate = 0 // Disable cache for this page
 
 export default async function DocumentsPage() {
   const supabase = createServerClient()
 
   const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
 
-  if (!session) {
-    return null
+  if (authError || !user) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <p className="text-muted-foreground">Error de autenticación. Por favor, inicia sesión nuevamente.</p>
+      </div>
+    )
   }
 
   // Get user documents
-  const { data: documents } = await supabase
+  const { data: documents, error: documentsError } = await supabase
     .from("documents")
     .select(`
       id,
@@ -31,8 +40,15 @@ export default async function DocumentsPage() {
       created_at,
       updated_at
     `)
-    .eq("uploaded_by", session.user.id)
+    .eq("uploaded_by", user.id)
     .order("created_at", { ascending: false })
+
+  if (documentsError) {
+    console.error("Error fetching documents:", documentsError)
+  }
+
+  // Force revalidation of this path
+  revalidatePath("/dashboard/documents")
 
   return (
     <div className="space-y-6">
@@ -41,7 +57,7 @@ export default async function DocumentsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Mis Documentos</h1>
           <p className="text-muted-foreground">Gestiona tus documentos y solicitudes de firma</p>
         </div>
-        <DocumentUploadButton userId={session.user.id} />
+        <DocumentUploadButton userId={user.id} />
       </div>
 
       {documents && documents.length > 0 ? (
@@ -93,10 +109,7 @@ export default async function DocumentsPage() {
                         <span className="sr-only">Gestionar firmas</span>
                       </Button>
                     </Link>
-                    <Button variant="outline" size="icon">
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                      <span className="sr-only">Eliminar documento</span>
-                    </Button>
+                    <DocumentDeleteButton documentId={document.id} />
                   </div>
                 </div>
               </CardContent>
@@ -111,7 +124,7 @@ export default async function DocumentsPage() {
             </div>
             <h3 className="mt-4 font-semibold">No tienes documentos</h3>
             <p className="text-sm text-muted-foreground">Sube tu primer documento para comenzar</p>
-            <DocumentUploadButton userId={session.user.id} className="mt-4" />
+            <DocumentUploadButton userId={user.id} className="mt-4" />
           </CardContent>
         </Card>
       )}
